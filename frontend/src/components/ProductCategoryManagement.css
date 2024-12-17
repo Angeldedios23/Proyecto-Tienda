@@ -1,0 +1,178 @@
+.container {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  h1, h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-btn:hover {
+    background-color: #45a049;
+  }
+  
+  /* Estilo base para los botones */
+.action-btn {
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px; /* Agregado para separar los botones */
+}
+
+.action-btn:hover {
+  opacity: 0.8; /* Para todos los botones */
+}
+
+/* Estilo específico para el botón de editar */
+.edit-btn {
+  background-color: #4CAF50; /* Verde */
+}
+
+.edit-btn:hover {
+  background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+}
+
+/* Estilo específico para el botón de eliminar */
+.delete-btn {
+  background-color: #f44336; /* Rojo */
+}
+
+.delete-btn:hover {
+  background-color: #da190b; /* Rojo más oscuro al pasar el ratón */
+}
+/*Productos*/
+.action-btn:hover {
+  opacity: 0.8; /* Para todos los botones */
+}
+
+/* Estilo específico para el botón de editar producto */
+.edit-product-btn {
+  background-color: #4CAF50; /* Verde */
+}
+
+.edit-product-btn:hover {
+  background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+}
+
+/* Estilo específico para el botón de eliminar producto */
+.delete-product-btn {
+  background-color: #f44336; /* Rojo */
+}
+
+.delete-product-btn:hover {
+  background-color: #da190b; /* Rojo más oscuro al pasar el ratón */
+}
+
+  
+  .action-btn:hover {
+    background-color: #da190b;
+  }
+  
+  .category-section, .product-section {
+    margin-top: 30px;
+  }
+  
+  .category-list, .product-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .category-card, .product-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px;
+    width: calc(33.33% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .category-card h3, .product-card h3 {
+    margin: 0 0 10px;
+  }
+  
+  .product-card img {
+    margin-top: 10px;
+    max-width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    .category-card, .product-card {
+      width: 100%;
+    }
+  }
+  
+ /* Estilo base para la tarjeta de producto */
+.product-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  width: calc(33.33% - 20px);
+  box-sizing: border-box;
+
+  /* Centrar el contenido dentro de la tarjeta */
+  display: flex;
+  flex-direction: column; /* Para que los elementos se apilen de forma vertical */
+  justify-content: center; /* Centrar verticalmente */
+  align-items: center; /* Centrar horizontalmente */
+ 
+}
+
+/* Estilo para los títulos dentro de la tarjeta */
+.product-card h3 {
+  margin: 0 0 10px;
+}
+.logout-container {
+  position: fixed;
+  top: 20px;
+  right: 1350px;
+  z-index: 1000;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+
