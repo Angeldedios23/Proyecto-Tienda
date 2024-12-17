@@ -5,7 +5,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        git url: 'https://github.com/tu-usuario/tu-repositorio.git',
+                        git url: 'https://github.com/Angeldedios23/Proyecto-Tienda.git',
                             branch: 'main',
                             credentialsId: 'github-credentials'
                     }
