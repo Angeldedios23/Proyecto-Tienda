@@ -1,10 +1,11 @@
-# Usa una versión de Node.js que soporte el operador de asignación nula
-FROM node:14.6.0
+# Usa una versión de Node.js que soporte el módulo 'node:url'
+FROM node:16-alpine
 
-# Establece el directorio de trabajo dentro del contenedor
+# Crea un usuario no root con UID 1001
+RUN adduser -D -u 1001 appuser
+
+# Establece el directorio de trabajo y copia los archivos como root
 WORKDIR /usr/src/app
-
-# Copia los archivos de package y package-lock primero para aprovechar el caché de Docker
 COPY package*.json ./
 
 # Instala las dependencias del proyecto
@@ -13,7 +14,13 @@ RUN npm install
 # Copia el resto de los archivos del proyecto
 COPY . .
 
-# Expone el puerto que usa la aplicación
+# Cambia el propietario de todos los archivos y directorios a appuser
+RUN chown -R appuser /usr/src/app
+
+# Cambia al usuario no root
+USER appuser
+
+# Expone el puerto (ajusta según sea necesario)
 EXPOSE 3001
 
 # Comando para iniciar la aplicación
