@@ -1,11 +1,13 @@
 pipeline {
     agent any
+    
     environment {
-        // Variables de entorno ajustadas a la estructura
-        BASE_DIR = 'proyect/proyect' // Ruta base para backend y frontend
-        BACKEND_DIR = 'proyect/proyect/backend'
-        FRONTEND_DIR = 'proyect/proyect/frontend'
+        // Adjusted for correct capitalization
+        PROJECT_DIR = 'Proyect/Proyect'
+        BACKEND_DIR = "${PROJECT_DIR}/backend"
+        FRONTEND_DIR = "${PROJECT_DIR}/frontend"
     }
+    
     stages {
         stage('Checkout Code') {
             steps {
@@ -14,61 +16,127 @@ pipeline {
                         git url: 'https://github.com/Angeldedios23/Proyecto-Tienda.git',
                             branch: 'master',
                             credentialsId: 'github-credentials'
+                        
+                        // Debug: List directory contents
+                        bat 'dir /s'
                     }
                 }
             }
         }
+        
+        stage('Validate Directories') {
+            steps {
+                script {
+                    // Check if directories exist before proceeding
+                    bat """
+                        if not exist "${PROJECT_DIR}" (
+                            echo "Project directory not found"
+                            exit 1
+                        )
+                        if not exist "${BACKEND_DIR}" (
+                            echo "Backend directory not found"
+                            exit 1
+                        )
+                        if not exist "${FRONTEND_DIR}" (
+                            echo "Frontend directory not found"
+                            exit 1
+                        )
+                    """
+                }
+            }
+        }
+        
         stage('Build Backend') {
             steps {
                 script {
-                    dockerImageBackend = docker.build("my-backend:${env.BUILD_ID}", "--file ${BACKEND_DIR}/Dockerfile ${BACKEND_DIR}")
+                    dir(PROJECT_DIR) {
+                        bat 'docker build -t "my-backend:%BUILD_NUMBER%" -f backend/Dockerfile backend'
+                    }
                 }
             }
         }
+        
         stage('Test Backend') {
             steps {
                 script {
-                    dockerImageBackend.inside("-w /workspace") {
-                        sh 'npm install'
-                        sh 'npm test'
+                    dir(BACKEND_DIR) {
+                        bat '''
+                            docker run --rm my-backend:%BUILD_NUMBER% npm install
+                            docker run --rm my-backend:%BUILD_NUMBER% npm test
+                        '''
                     }
                 }
             }
         }
+        
         stage('Build Frontend') {
             steps {
                 script {
-                    dockerImageFrontend = docker.build("my-frontend:${env.BUILD_ID}", "--file ${FRONTEND_DIR}/Dockerfile ${FRONTEND_DIR}")
+                    dir(PROJECT_DIR) {
+                        bat 'docker build -t "my-frontend:%BUILD_NUMBER%" -f frontend/Dockerfile frontend'
+                    }
                 }
             }
         }
+        
         stage('Test Frontend') {
             steps {
                 script {
-                    dockerImageFrontend.inside("-w /workspace") {
-                        sh 'npm install'
-                        sh 'npm run build'
+                    dir(FRONTEND_DIR) {
+                        bat '''
+                            docker run --rm my-frontend:%BUILD_NUMBER% npm install
+                            docker run --rm my-frontend:%BUILD_NUMBER% npm run build
+                        '''
                     }
                 }
             }
         }
+        
         stage('Deploy') {
+            environment {
+                GCLOUD_CREDS = credentials('gcloud-service-key')
+            }
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'gcloud-service-key', variable: 'GCLOUD_SERVICE_KEY')]) {
-                        sh 'gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY'
-                        sh 'gcloud config set project my-project-id'
+                    // Activate Google Cloud service account
+                    bat 'gcloud auth activate-service-account --key-file=%GCLOUD_CREDS%'
+                    bat 'gcloud config set project my-project-id'
+                    
+                    // Push Docker images to Google Container Registry
+                    bat """
+                        docker tag my-backend:%BUILD_NUMBER% gcr.io/my-project-id/backend:%BUILD_NUMBER%
+                        docker tag my-frontend:%BUILD_NUMBER% gcr.io/my-project-id/frontend:%BUILD_NUMBER%
                         
-                        // Build and push Docker images
-                        sh "gcloud builds submit --tag gcr.io/my-project-id/backend:${env.BUILD_ID} ${BACKEND_DIR}"
-                        sh "gcloud builds submit --tag gcr.io/my-project-id/frontend:${env.BUILD_ID} ${FRONTEND_DIR}"
-                        
-                        // Deploy to Kubernetes
-                        sh 'kubectl apply -f deployment/backend-deployment.yaml'
-                        sh 'kubectl apply -f deployment/frontend-deployment.yaml'
+                        docker push gcr.io/my-project-id/backend:%BUILD_NUMBER%
+                        docker push gcr.io/my-project-id/frontend:%BUILD_NUMBER%
+                    """
+                    
+                    // Deploy to Kubernetes
+                    dir(PROJECT_DIR) {
+                        bat 'kubectl apply -f deployment/backend-deployment.yaml'
+                        bat 'kubectl apply -f deployment/frontend-deployment.yaml'
                     }
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup
+            cleanWs()
+            bat """
+                docker rmi my-backend:%BUILD_NUMBER% -f
+                docker rmi my-frontend:%BUILD_NUMBER% -f
+                docker rmi gcr.io/my-project-id/backend:%BUILD_NUMBER% -f
+                docker rmi gcr.io/my-project-id/frontend:%BUILD_NUMBER% -f
+            """
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Check the logs above for details.'
         }
     }
 }
